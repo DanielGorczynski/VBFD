@@ -151,7 +151,7 @@ quantile(Null_vector, probs = seq(.975,1))
 
 
 ##Figure for Functional Diversity Over Time
-#Figure for Functional diversity turnover
+#Figure for Functional diversity 
 ggplot()+
   geom_ribbon(data = Annual.Functional.Diversity, aes(x = Year, ymin = Func.Null.Low, ymax = Func.Null.High), fill = "grey90") +
   geom_point(data = Annual.Functional.Diversity, aes(x = Year, y = Func.Div, col = "Functional Diversity"))+
@@ -161,8 +161,9 @@ ggplot()+
   #geom_line(data = Dpw.Values.10000, aes(x = Year, y = Null.Dpw, col = "Null Model Turnover", group = Park)) +
   scale_colour_manual("", 
                       breaks = c("Functional Diversity", "Null Model"),
-                      values = c("green", "grey70"))+
+                      values = c("black", "grey70"))+
   theme_classic()+
+  theme(axis.text = element_text(size = rel(1.5)))+
   labs( title = "Mammalian Functional Diversity in Volcan Barva over time", y = "Functional Diversity")+
   ylim(0.27, 0.34)
 
@@ -183,9 +184,10 @@ k <- lm(Func.Div ~ FL_VB+FM_10km+Stem.Count, data = Annual.FD.with.Enviro.Var, w
 l <- lm(Func.Div ~ FL_VB+FM_10km+Tot.Prec, data = Annual.FD.with.Enviro.Var, weights = Variance)
 m <- lm(Func.Div ~ FL_VB+Tot.Prec+Stem.Count, data = Annual.FD.with.Enviro.Var, weights = Variance)
 n <- lm(Func.Div ~ FM_10km+Tot.Prec+Stem.Count, data = Annual.FD.with.Enviro.Var, weights = Variance)
-o <- list(a,b,c,d,e,f,g,h,i,j,k,l,m,n)
-names <- c("FL","FM","TP","SC","FL+FM","FL+TP","FL+SC","FM+TP","FM+SC","TP+SC","FL+FM+SC","FL+FM+TP","FL+TP+SC","FM+TP+SC")
-aictab(o, modnames = names)
+o <- lm(Func.Div ~ 1, data = Annual.FD.with.Enviro.Var, weights = Variance)
+p <- list(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o)
+names <- c("FL","FM","TP","SC","FL+FM","FL+TP","FL+SC","FM+TP","FM+SC","TP+SC","FL+FM+SC","FL+FM+TP","FL+TP+SC","FM+TP+SC","NULL")
+q <- aictab(p, modnames = names)
 
 ##Get Coefficient Values and Standard error, a is model of interest
 coef(summary(a))
@@ -205,6 +207,8 @@ ggplot()+
 #Obtain confidence interval for model predictions where a is best fit model, 
 #Annual.FD.with.Enviro.Var is dataframe that has Functional Diversity and Predictive Variable Values
 ## add fit and se.fit on the **link** scale
+ilink <- family(a)$linkinv
+
 Annual.FD.with.Enviro.Var <- bind_cols(Annual.FD.with.Enviro.Var, 
                         setNames(as_tibble(predict(a, Annual.FD.with.Enviro.Var, se.fit = TRUE)[1:2]),
                            c('fit_link','se_link')))
@@ -219,8 +223,8 @@ Annual.Functional.Diversity <- mutate(Annual.FD.with.Enviro.Var,
 library(ggplot2)
 ggplot()+
   geom_ribbon(data = Annual.Functional.Diversity, aes(x = Year, ymin = right_lwr, ymax = right_upr ), fill = "grey60")+
-  geom_point(data = Annual.Functional.Diversity, aes(x = Year, y = Func.Div, col = "Functional Diversity"))+
-  geom_line(data = Annual.Functional.Diversity, aes(x = Year, y = Func.Div, col = "Functional Diversity"))+ 
+  geom_point(data = Annual.Functional.Diversity, aes(x = Year, y = fit_link, col = "Functional Diversity"))+
+  geom_line(data = Annual.Functional.Diversity, aes(x = Year, y = fit_link, col = "Functional Diversity"))+ 
   
   #geom_point(data = Annual.Functional.Diversity, aes(x = Year, y = a$fitted.values, col = "Canopy Gaps"))+
   #geom_line(data = Annual.Functional.Diversity, aes(x = Year, y = a$fitted.values, col = "Canopy Gaps")) +
@@ -228,8 +232,9 @@ ggplot()+
   #geom_line(data = Annual.Functional.Diversity, aes(x = Year, y = e$fitted.values, col = "Forest Loss and Mean Fragment Area"))+
   scale_colour_manual("", 
                       breaks = c("Functional Diversity", "Canopy gap model", "Forest Loss and Mean Fragment Area"),
-                      values = c("green", "grey","red"))+
+                      values = c("black", "grey","red"))+
   theme_classic()+
+  theme(axis.text = element_text(size = rel(1.5)))+
   labs( title = "Comparing Measured Functional Diversity with Predicted Functional Diversity", y = "Functional Diversity")+
   ylim(0.313, 0.325)
 
@@ -379,16 +384,18 @@ aictab(mods, modnames = mod.names)
   
   ggplot()+
     #geom_ribbon(data = Func.Redund, aes(x = Species, ymin = Null.Min, ymax = Null.Max), fill = "grey70") +
-    geom_point(data = Functional.Redundancy, aes(x = Species, y = Div.Dif, col = factor(Year)))+
-    geom_line(data = Functional.Redundancy, aes(x = Species, y = Div.Dif, col = factor(Year))) +
+    geom_point(data = Functional.Redundancy, aes(x = Species, y = Diversity, col = factor(Year)))+
+    geom_line(data = Functional.Redundancy, aes(x = Species, y = Diversity, col = factor(Year))) +
     #geom_point(data = Func.Redund, aes(x = Species, y = Null.Mean)) +
     #geom_line(data = Func.Redund, aes(x = Species, y = Null.Mean)) +
     scale_colour_manual("", 
                         #breaks = c("Measured Functional Diversity", "Null Model Diversity"),
                         values = c("red","orange","yellow","green","blue","darkblue","purple","black"))+
     theme_classic()+
+    theme(axis.text = element_text(size = rel(1.5)))+
+    theme(axis.title = element_text(size = rel(1.5)))+
     labs( title = "Functional Redundancy in Volcan Barva", y = "Functional Diversity", x = "Species Richness")+
-    ylim(-0.0025, 0.0075)
+    ylim(0.295,0.325)
 
 ##Plot for Functional Diversity versus Functional Redundancy  
   ggplot()+
