@@ -1,10 +1,16 @@
-#Functional Diversity- Gives average functional diversity of species weigthed by abundance
-#Similar to Botta-Dukat's Rao's Quadratic Entropy, but the abundance only factors in at the end
-#Is this okay??
+##FUNCTIONS USED TO CALCULATE FUNCTIONAL DIVERSITY, FUNCTIONAL REDUNDANCY, AND NULL MODELS IN THIS STUDY
+##
+
+
+
+###FUNCTIONAL DIVERSITY- Function for average alpha functional diversity of a community weighted by species abundances
 library(dplyr)
 library(FactoMineR)
 library(cluster)
 
+#Function inputs- x is median occurences obtained from Occ function, y is the year of interest e.g. "2007"
+#ft is a table of functional traits of species in the community where rows are species and columns are ranked
+#functional traits
 Func.Div <- function(x,y,ft){
 
 Community_Div<-vector("numeric")
@@ -14,9 +20,6 @@ Comm.Funct<-ft[ft[["Species"]] %in% Community,]
 rownames(Comm.Funct)<-Comm.Funct$Species
 Comm.Funct$Species<-NULL
 
-
-  
- 
   res.pca<-PCA(Comm.Funct, graph = F) #PCA
   Funct.Coord<-res.pca$ind$coord
   Funct.Coord.5<-as.data.frame(Funct.Coord)
@@ -32,14 +35,20 @@ Comm.Funct$Species<-NULL
 
   Sigma<-cbind(Avg.Func.Div,Pres.Abs[[y]]) #incorporate funct. div in calculation table
   colnames(Sigma) <- c("Means","Abundance")
-  #Sigma$Means <- sample(Sigma$Means, replace = FALSE)
-  #Sigma["Influence"]<-(Sigma$Means*Sigma$Abundance) #product of funct. div and change in occurence
   Sigma["Influence"]<-(Sigma$Means*(Sigma$Abundance/sum(Sigma$Abundance)))
   FD<-(sum(Sigma$Influence)) #Sums species influences for Turnover
 return(FD)
   }
 
-###Functional Null Model
+
+
+###FUNCTIONAL DIVERSITY NULL MODEL- decouples species functional distinctiveness and occupancy values and resdistributes
+#them in the community
+library(dplyr)
+library(FactoMineR)
+library(cluster)
+
+#Function inputs- same as above
 Func.Div.NULL <- function(x,y,ft){
   
   Community_Div<-vector("numeric")
@@ -68,86 +77,19 @@ Func.Div.NULL <- function(x,y,ft){
   Sigma<-cbind(Avg.Func.Div,Pres.Abs[[y]]) #incorporate funct. div in calculation table
   colnames(Sigma) <- c("Means","Abundance")
   Sigma$Means <- sample(Sigma$Means, replace = FALSE)
-  #Sigma["Influence"]<-(Sigma$Means*Sigma$Abundance) #product of funct. div and change in occurence
   Sigma["Influence"]<-(Sigma$Means*(Sigma$Abundance/sum(Sigma$Abundance)))
   FD<-(sum(Sigma$Influence)) #Sums species influences for Turnover
   return(FD)
 }
 
+#Replicates Functional Diversity Null Model 10000 times and obtains 95% confidence interval
 Null_vector <- replicate(10000, Func.Div.NULL(Occurance,"2010",Volcan.Barva.Traits))
-print(Null_vector)
 mean(Null_vector)
-var(Null_vector)
 quantile(Null_vector, probs = seq(0.025,.975,1))
 quantile(Null_vector, probs = seq(.975,1))
 
 
-### Occurence Null model
 
-Func.Div.NULL.2 <- function(x,y,ft){
-  
-  x[is.na(x)] <- 0
-  x <- subset(x, class == "MAMMALIA")
-  Species <- x$bin
-  Species <- unique(Species) #Obtain list of species in community
-  Year <- matrix(c(2007:2014), nrow=8, ncol=1) #Create empty matrix
-  
-  for (p in Species){ #run loop to fill in matrix one vector (species) at a time
-    Psivector <- vector("numeric")
-    for (i in 2007:2014){ #run loop to fill in vector one value (year) at a time
-      Mams <- subset(x, bin == p)
-      Psi1000 <- subset(Mams, year == i)
-      Samp <- sample_n(Psi1000, size = 1)
-      Samp <- Samp$psi
-      Psivector[[i-2006]] <- Samp
-    }
-    Year <- cbind(Year, Psivector)
-  }
-  
-  rownames(Year) <- Year[,1] #Some rearrangement of matrix to give data frame compatible with Gower Distance
-  Year <-  Year [,-1] 
-  colnames(Year) <- Species
-  Year <- t(Year)
-  Occurance <- as.data.frame(Year)
-  Occurance <- cbind( "Species" = rownames(Occurance), Occurance) 
-  rownames(Occurance) <- NULL
-  Occurance <- as.data.frame(Occurance)
-  
-  Community_Div<-vector("numeric")
-  Pres.Abs<- filter(Occurance,Occurance[[y]] > 0)
-  Community<-Pres.Abs$Species
-  Comm.Funct<-ft[ft[["Species"]] %in% Community,]
-  rownames(Comm.Funct)<-Comm.Funct$Species
-  Comm.Funct$Species<-NULL
-  
-  res.pca<-PCA(Comm.Funct, graph = F) #PCA
-  Funct.Coord<-res.pca$ind$coord
-  Funct.Coord.5<-as.data.frame(Funct.Coord)
-  #Funct.Coord.4 <- Funct.Coord.5[c(1:4)]
-  Funct.Coord.3<-Funct.Coord.5[c(1:3)] #parse out first 3 dimmensions of PCA only
-  #Funct.Coord.2 <- Funct.Coord.5[c(1:2)]
-  Func.Dist.Matrix<-daisy(Funct.Coord.3, metric = "gower") #Gower on first 3 PCA dimmensions
-  Func.Dendrogram<-hclust(Func.Dist.Matrix, method = "average") #Construct Dendrogram
-  Dend.Dist.Mat <- cophenetic(Func.Dendrogram) #Dendrogram difference between all species
-  Dend.Dist.Mat <- as.matrix(Dend.Dist.Mat)
-  Dend.Dist.df <- as.data.frame(Dend.Dist.Mat)
-  Avg.Func.Div <- data.frame(row.names = rownames(Dend.Dist.df), Means=rowMeans(Dend.Dist.df))
-  
-  Sigma<-cbind(Avg.Func.Div,Pres.Abs[[y]]) #incorporate funct. div in calculation table
-  colnames(Sigma) <- c("Means","Abundance")
-  #Sigma$Means <- sample(Sigma$Means, replace = FALSE)
-  #Sigma["Influence"]<-(Sigma$Means*Sigma$Abundance) #product of funct. div and change in occurence
-  Sigma["Influence"]<-(Sigma$Means*(Sigma$Abundance/sum(Sigma$Abundance)))
-  FD<-(sum(Sigma$Influence)) #Sums species influences for Turnover
-  return(FD)
-}
-
-Null_vector <- replicate(1000, Func.Div.NULL.2(VBdata_psi,"2014",Volcan.Barva.Traits))
-print(Null_vector)
-mean(Null_vector)
-var(Null_vector)
-quantile(Null_vector, probs = seq(0.025,.975,1))
-quantile(Null_vector, probs = seq(.975,1))
 
 
 ##Figure for Functional Diversity Over Time
@@ -168,26 +110,7 @@ ggplot()+
   ylim(0.27, 0.34)
 
 
-##Linear Models
-library(AICcmodavg)
-a <- lm(Func.Div ~ FL_VB, data = Annual.FD.with.Enviro.Var, weights = Variance)
-b <- lm(Func.Div ~ FM_10km, data = Annual.FD.with.Enviro.Var, weights = Variance)
-c <- lm(Func.Div ~ Tot.Prec, data = Annual.FD.with.Enviro.Var, weights = Variance)
-d <- lm(Func.Div ~ Stem.Count, data = Annual.FD.with.Enviro.Var, weights = Variance)
-e <- lm(Func.Div ~ FL_VB+FM_10km, data = Annual.FD.with.Enviro.Var, weights = Variance)
-f <- lm(Func.Div ~ FL_VB+Tot.Prec, data = Annual.FD.with.Enviro.Var, weights = Variance)
-g <- lm(Func.Div ~ FL_VB+Stem.Count, data = Annual.FD.with.Enviro.Var, weights = Variance)
-h <- lm(Func.Div ~ FM_10km+Tot.Prec, data = Annual.FD.with.Enviro.Var, weights = Variance)
-i <- lm(Func.Div ~ FM_10km+Stem.Count, data = Annual.FD.with.Enviro.Var, weights = Variance)
-j <- lm(Func.Div ~ Tot.Prec+Stem.Count, data = Annual.FD.with.Enviro.Var, weights = Variance)
-k <- lm(Func.Div ~ FL_VB+FM_10km+Stem.Count, data = Annual.FD.with.Enviro.Var, weights = Variance)
-l <- lm(Func.Div ~ FL_VB+FM_10km+Tot.Prec, data = Annual.FD.with.Enviro.Var, weights = Variance)
-m <- lm(Func.Div ~ FL_VB+Tot.Prec+Stem.Count, data = Annual.FD.with.Enviro.Var, weights = Variance)
-n <- lm(Func.Div ~ FM_10km+Tot.Prec+Stem.Count, data = Annual.FD.with.Enviro.Var, weights = Variance)
-o <- lm(Func.Div ~ 1, data = Annual.FD.with.Enviro.Var, weights = Variance)
-p <- list(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o)
-names <- c("FL","FM","TP","SC","FL+FM","FL+TP","FL+SC","FM+TP","FM+SC","TP+SC","FL+FM+SC","FL+FM+TP","FL+TP+SC","FM+TP+SC","NULL")
-q <- aictab(p, modnames = names)
+
 
 ##Get Coefficient Values and Standard error, a is model of interest
 coef(summary(a))
@@ -204,39 +127,10 @@ ggplot()+
   theme(axis.text.x = element_text(angle = 45, hjust = 1))+
   geom_vline(xintercept =  1.5, linetype = "dotted" )
 
-#Obtain confidence interval for model predictions where a is best fit model, 
-#Annual.FD.with.Enviro.Var is dataframe that has Functional Diversity and Predictive Variable Values
-## add fit and se.fit on the **link** scale
-ilink <- family(a)$linkinv
-
-Annual.FD.with.Enviro.Var <- bind_cols(Annual.FD.with.Enviro.Var, 
-                        setNames(as_tibble(predict(a, Annual.FD.with.Enviro.Var, se.fit = TRUE)[1:2]),
-                           c('fit_link','se_link')))
-## create the interval and backtransform
-Annual.Functional.Diversity <- mutate(Annual.FD.with.Enviro.Var,
-                fit_resp  = ilink(fit_link),
-                right_upr = ilink(fit_link + (2 * se_link)),
-                right_lwr = ilink(fit_link - (2 * se_link)))
 
 
-##Plot Functional Diversity and Model Predictions
-library(ggplot2)
-ggplot()+
-  geom_ribbon(data = Annual.Functional.Diversity, aes(x = Year, ymin = right_lwr, ymax = right_upr ), fill = "grey60")+
-  geom_point(data = Annual.Functional.Diversity, aes(x = Year, y = fit_link, col = "Functional Diversity"))+
-  geom_line(data = Annual.Functional.Diversity, aes(x = Year, y = fit_link, col = "Functional Diversity"))+ 
-  
-  #geom_point(data = Annual.Functional.Diversity, aes(x = Year, y = a$fitted.values, col = "Canopy Gaps"))+
-  #geom_line(data = Annual.Functional.Diversity, aes(x = Year, y = a$fitted.values, col = "Canopy Gaps")) +
-  #geom_point(data = Annual.Functional.Diversity, aes(x = Year, y = e$fitted.values, col = "Forest Loss and Mean Fragment Area"))+
-  #geom_line(data = Annual.Functional.Diversity, aes(x = Year, y = e$fitted.values, col = "Forest Loss and Mean Fragment Area"))+
-  scale_colour_manual("", 
-                      breaks = c("Functional Diversity", "Canopy gap model", "Forest Loss and Mean Fragment Area"),
-                      values = c("black", "grey","red"))+
-  theme_classic()+
-  theme(axis.text = element_text(size = rel(1.5)))+
-  labs( title = "Comparing Measured Functional Diversity with Predicted Functional Diversity", y = "Functional Diversity")+
-  ylim(0.313, 0.325)
+
+
 
 ##Functional Redundancy 
 Func.Red <- function(x,y,ft,i){
@@ -384,8 +278,8 @@ aictab(mods, modnames = mod.names)
   
   ggplot()+
     #geom_ribbon(data = Func.Redund, aes(x = Species, ymin = Null.Min, ymax = Null.Max), fill = "grey70") +
-    geom_point(data = Functional.Redundancy, aes(x = Species, y = Diversity, col = factor(Year)))+
-    geom_line(data = Functional.Redundancy, aes(x = Species, y = Diversity, col = factor(Year))) +
+    geom_point(data = Functional.Redundancy, aes(x = Species.Loss, y = Loss, col = factor(Year)))+
+    geom_line(data = Functional.Redundancy, aes(x = Species.Loss, y = Loss, col = factor(Year))) +
     #geom_point(data = Func.Redund, aes(x = Species, y = Null.Mean)) +
     #geom_line(data = Func.Redund, aes(x = Species, y = Null.Mean)) +
     scale_colour_manual("", 
@@ -394,7 +288,7 @@ aictab(mods, modnames = mod.names)
     theme_classic()+
     theme(axis.text = element_text(size = rel(1.5)))+
     theme(axis.title = element_text(size = rel(1.5)))+
-    labs( title = "Functional Redundancy in Volcan Barva", y = "Functional Diversity", x = "Species Richness")+
+    labs( title = "Functional Redundancy in Volcan Barva", y = "Functional Diversity", x = "Species Lost")+
     ylim(0.295,0.325)
 
 ##Plot for Functional Diversity versus Functional Redundancy  
