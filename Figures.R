@@ -1,20 +1,34 @@
 ##Plot Functional Diversity Over Time with Functional Diversity Null Model confidence interval
 ggplot()+
-  geom_ribbon(data = Annual.Functional.Diversity, aes(x = Year, ymin = Func.Null.Low, ymax = Func.Null.High), fill = "grey90") +
-  geom_point(data = Annual.Functional.Diversity, aes(x = Year, y = Func.Div, col = "Functional Diversity"))+
-  geom_line(data = Annual.Functional.Diversity, aes(x = Year, y = Func.Div, col = "Functional Diversity")) +
+  #geom_ribbon(data = Volcan.Barva.Analysis, aes(x = Year, ymin = Func.Null.Low, ymax = Func.Null.High), fill = "grey90") +
+  geom_point(data = Volcan.Barva.Analysis, aes(x = Year, y = Fdis, col = "Functional Diversity"))+
+  geom_line(data = Volcan.Barva.Analysis, aes(x = Year, y = Fdis, col = "Functional Diversity")) +
   #geom_errorbar(data = Annual.Functional.Diversity, aes(x = Year, ymin = Abund.Null.Low, ymax = Abund.Null.High), width = .2) +
   #geom_point(data = Dpw.Values.10000, aes(x = Year, y = Null.Dpw, col = "Null Model Turnover", group = Park)) +
   #geom_line(data = Dpw.Values.10000, aes(x = Year, y = Null.Dpw, col = "Null Model Turnover", group = Park)) +
   scale_colour_manual("", 
-                      breaks = c("Functional Diversity", "Null Model"),
-                      values = c("black", "grey70"))+
+                      breaks = c("Functional Diversity"),
+                      values = c("black"))+
   theme_classic()+
   theme(axis.text = element_text(size = rel(1.5)))+
-  labs( title = "Mammalian Functional Diversity in Volcan Barva over time", y = "Functional Diversity")+
-  ylim(0.27, 0.34)
+  labs( title = "Mammalian Functional Dispersion in Volcan Barva over time", y = "Functional Dispersion")+
+  ylim(0, 3)
 
-
+##Plot Average Occpuancy Over Time 
+ggplot()+
+  #geom_ribbon(data = Volcan.Barva.Analysis, aes(x = Year, ymin = Func.Null.Low, ymax = Func.Null.High), fill = "grey90") +
+  geom_point(data = Volcan.Barva.Analysis, aes(x = Year, y = Occupancy.Avg, col = "Mean Occupancy"))+
+  geom_line(data = Volcan.Barva.Analysis, aes(x = Year, y = Occupancy.Avg, col = "Mean Occupancy")) +
+  #geom_errorbar(data = Annual.Functional.Diversity, aes(x = Year, ymin = Abund.Null.Low, ymax = Abund.Null.High), width = .2) +
+  #geom_point(data = Dpw.Values.10000, aes(x = Year, y = Null.Dpw, col = "Null Model Turnover", group = Park)) +
+  #geom_line(data = Dpw.Values.10000, aes(x = Year, y = Null.Dpw, col = "Null Model Turnover", group = Park)) +
+  scale_colour_manual("", 
+                      breaks = c("Mean Occupancy"),
+                      values = c("black"))+
+  theme_classic()+
+  theme(axis.text = element_text(size = rel(1.5)))+
+  labs( title = "Average Mammalian Occupancy over time", y = "Mean Occupancy")+
+  ylim(0, .5)
 
 ##Plot Functional Diversity Model Predictions with confidence interval
 library(ggplot2)
