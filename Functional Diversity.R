@@ -155,13 +155,22 @@ y <- segmented(z, seg.Z = ~Species, psi = c(3,6,14))
 #EDITED Functional Redundancy calculation using FD function
 ## functional diversity of a community of size i in year y. Input variable x and ft are the same as
 #above
-Func.Red <- function(x,y,ft,i){
-  
-  Community_Div<-vector("numeric")
-  Pres.Abs<- filter(x,x[[y]] > 0)
+Func.Red <- function(ab,ft,i){
+  Pres.Abs <- ab
   Pres.Abs.red <- Pres.Abs[sample(nrow(Pres.Abs),i,replace = FALSE),]
+  Pres.Abs.red <- Pres.Abs.red[order(row.names(Pres.Abs.red)),]
+  Community <- rownames(Pres.Abs.red)
+  Comm.Funct <- ft[rownames(ft) %in% Community,]
   Pres.Abs.red <- t(Pres.Abs.red)
   x <- dbFD(ft, Pres.Abs.red)
-  return(FD)
+  return(x$FDis["2007"])
 }
 
+#Calculate functional diversity for all community sizes for a single year
+#Input variables remain the same
+mean.FR <- vector("numeric")
+for(i in 2:21) {
+  Red_vector <- replicate(1000, Func.Red(Occurence, VB_taxa_traits, i))
+  mean.FR[i] <- mean(Red_vector)
+}
+cat(mean.FR, sep = "\n")
