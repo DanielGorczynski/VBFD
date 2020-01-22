@@ -23,5 +23,11 @@ fitFD <- lm(Fdis~ FL_VB + Var.Temp + FM_ZOI_90 + FL_ZOI,
 allFD.dredge <- dredge(fitFD, beta=TRUE, evaluate=TRUE, rank="AICc", trace=TRUE, extra=list("confint", "adjR^2"))
 allFD.dredge
 
-
-
+##Test for temporal trends in CWM values
+p <- lm(x$CWM$Body.Mass ~ Year, data = Volcan.Barva.Analysis)
+p <- lm(x$CWM$Diet ~ Year, data = Volcan.Barva.Analysis)
+p <- lm(x$CWM$Social.Group.Size ~ Year, data = Volcan.Barva.Analysis) ##Significant
+p <- lm(x$CWM$Habitat ~ Year, data = Volcan.Barva.Analysis)
+p <- lm(x$CWM$Activity.Period ~ Year, data = Volcan.Barva.Analysis) ##Significant
+p <- lm(x$CWM$Avg..Litter.Size ~ Year, data = Volcan.Barva.Analysis)
+summary(p)
