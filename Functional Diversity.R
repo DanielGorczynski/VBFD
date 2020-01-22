@@ -150,4 +150,18 @@ y <- segmented(z, seg.Z = ~Species, psi = c(3,6,14))
 #Model with lowest AIC value (of w,x,y,z) selected as best fit model
 
 
+
+####
+#EDITED Functional Redundancy calculation using FD function
+## functional diversity of a community of size i in year y. Input variable x and ft are the same as
+#above
+Func.Red <- function(x,y,ft,i){
   
+  Community_Div<-vector("numeric")
+  Pres.Abs<- filter(x,x[[y]] > 0)
+  Pres.Abs.red <- Pres.Abs[sample(nrow(Pres.Abs),i,replace = FALSE),]
+  Pres.Abs.red <- t(Pres.Abs.red)
+  x <- dbFD(ft, Pres.Abs.red)
+  return(FD)
+}
+
