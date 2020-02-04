@@ -24,10 +24,10 @@ allFD.dredge <- dredge(fitFD, beta=TRUE, evaluate=TRUE, rank="AICc", trace=TRUE,
 allFD.dredge
 
 ##Test for temporal trends in CWM values
-p <- lm(x$CWM$Body.Mass ~ Year, data = Volcan.Barva.Analysis)
-p <- lm(x$CWM$Diet ~ Year, data = Volcan.Barva.Analysis)
-p <- lm(x$CWM$Social.Group.Size ~ Year, data = Volcan.Barva.Analysis) ##Significant
-p <- lm(x$CWM$Habitat ~ Year, data = Volcan.Barva.Analysis)
-p <- lm(x$CWM$Activity.Period ~ Year, data = Volcan.Barva.Analysis) ##Significant
-p <- lm(x$CWM$Avg..Litter.Size ~ Year, data = Volcan.Barva.Analysis)
+p <- lm(VB.FD$CWM$Body.Mass ~ Year, data = Volcan.Barva.Analysis)
+p <- lm(VB.FD$CWM$Diet ~ Year, data = Volcan.Barva.Analysis)
+p <- lm(VB.FD$CWM$Social.Group.Size ~ Year, data = Volcan.Barva.Analysis) ##Significant
+p <- lm(VB.FD$CWM$Habitat ~ Year, data = Volcan.Barva.Analysis)
+p <- lm(VB.FD$CWM$Activity.Period ~ Year, data = Volcan.Barva.Analysis) ##Significant
+p <- lm(VB.FD$CWM$Avg..Litter.Size ~ Year, data = Volcan.Barva.Analysis)
 summary(p)
