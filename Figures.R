@@ -105,7 +105,8 @@ ggplot()+
                       #breaks = c("Measured Functional Diversity", "Null Model Diversity"),
                       values = c("red","orange","yellow","green","blue","darkblue","purple","black"))+
   theme_classic()+
-  theme(axis.text = element_text(size = rel(1.5)))+
+  #scale_y_continuous()+
+  theme(axis.text = element_text(size = rel(.5)))+
   theme(axis.title = element_text(size = rel(1.5)))+
   labs( title = "Functional Redundancy in Volcan Barva", y = "Functional Diversity", x = "Species Lost")
   #ylim()

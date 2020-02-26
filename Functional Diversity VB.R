@@ -96,6 +96,8 @@ row.names(mean.FR.cal.1) <- c("21","20","19","18","17","16","15","14",
         "13","12","11","10","9","8","7","6","5","4","3","2","1")
 mean.FR.cal.1 <- mean.FR.cal.1[-c(1:3),]
 Annual.FRed <- melt(mean.FR.cal.1)
+Annual.FRed$Species.Loss <- as.numeric(as.character(Annual.FRed$Species.Loss))
+Annual.FRed$FDis <- as.numeric(as.character(Annual.FRed$FDis))
 colnames(Annual.FRed) <- c("Species.Loss","Year","FDis")
 
 ##Average across years
