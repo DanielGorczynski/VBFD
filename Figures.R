@@ -14,19 +14,7 @@ FDis.plot <- ggplot()+
   labs( title = "Annual mammalian functional dispersion", y = "FDis")+
   ylim(2.1, 2.3)+
   theme(legend.position = "none", axis.title.x =element_blank())
-  
-##Plot Average Occpuancy Over Time 
-Avg.Occ.plot <- ggplot()+
-  geom_point(data = Volcan.Barva.Analysis, aes(x = Year, y = Occupancy.Avg, col = "Mean Occupancy"))+
-  geom_line(data = Volcan.Barva.Analysis, aes(x = Year, y = Occupancy.Avg, col = "Mean Occupancy")) +
-  scale_colour_manual("", 
-                      breaks = c("Mean Occupancy"),
-                      values = c("#006d2c"))+
-  theme_classic()+
-  theme(axis.text = element_text(size = rel(.9)))+
-  labs( title = "Annual average mammalian occupancy", y = "Mean Occ.")+
-  ylim(.11, .2)+
-  theme(legend.position = "none",axis.title.x =element_blank())
+
 
 ##Plot Environmental Variables over time 
 Prec.plot <- ggplot()+
@@ -79,7 +67,7 @@ Defor.plot <- ggplot()+
 
 ##Combine trends over time into single figure
 
-ggarrange(Prec.plot,Can.gap.plot,Frag.plot,Defor.plot, FDis.plot,Avg.Occ.plot, ncol = 1, align = "hv", label.x = "Year")
+ggarrange(Prec.plot,Can.gap.plot,Frag.plot,Defor.plot, FDis.plot, ncol = 1, align = "hv", label.x = "Year")
 
 ##Export as a 5x10 PDF
 
@@ -109,8 +97,8 @@ ggplot()+
 ##Plot Functional Redundancy, NEEDS EXPLANATION OF VARIABLES SINCE DATA TABLE IS NOT PUT TOGETHER IN FUNCTIONS SCRIPT
 ggplot()+
   #geom_ribbon(data = Func.Redund, aes(x = Species, ymin = Null.Min, ymax = Null.Max), fill = "grey70") +
-  geom_point(data = Functional.Redundancy, aes(x = Species.Loss, y = Fdis, col = factor(Year)))+
-  geom_line(data = Functional.Redundancy, aes(x = Species.Loss, y = Fdis, col = factor(Year))) +
+  geom_point(data = Annual.FRed, aes(x = Species.Loss, y = FDis, group = Year, col = as.character(Year)))+
+  geom_line(data = Annual.FRed, aes(x = Species.Loss, y = FDis, group = Year, col = as.character(Year))) +
   #geom_point(data = Func.Redund, aes(x = Species, y = Null.Mean)) +
   #geom_line(data = Func.Redund, aes(x = Species, y = Null.Mean)) +
   scale_colour_manual("", 
