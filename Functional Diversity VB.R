@@ -60,7 +60,7 @@ Occurence <- Occurence[-21,]
 rownames(Occurence) <- Occurence$Species
 Occurence$Species <- NULL
 Occurence <- t(Occurence)
-VB.FD <- dbFD(VB.Ordered.Categories,Occurence)
+VB.FD <- dbFD(VB.Ordered.Categories,Occurence, corr = "cailliez")
 
 
 
@@ -86,9 +86,10 @@ for (i in 4:21) {
   Red_vector <- replicate(1000, Func.Red(Occurence,VB.Ordered.Categories,i))
   mean.FR.cal[i,] <- as.numeric(rowMeans(Red_vector))
 }
-cat(mean.FR, sep = "\n")
+cat(mean.FR.cal, sep = "\n")
 
-
+##Format for ggplot
+library(reshape2)
 colnames(mean.FR.cal) <- c("2007","2008","2009","2010","2011","2012","2013","2014")
 mean.FR.cal[c(1:3),] <- NA
 mean.FR.cal.1 <- mean.FR.cal
@@ -97,10 +98,11 @@ row.names(mean.FR.cal.1) <- c("21","20","19","18","17","16","15","14",
 mean.FR.cal.1 <- mean.FR.cal.1[-c(1:3),]
 Annual.FRed <- melt(mean.FR.cal.1)
 Annual.FRed$Species.Loss <- as.numeric(as.character(Annual.FRed$Species.Loss))
-Annual.FRed$FDis <- as.numeric(as.character(Annual.FRed$FDis))
 colnames(Annual.FRed) <- c("Species.Loss","Year","FDis")
+Annual.FRed$FDis <- as.numeric(as.character(Annual.FRed$FDis))
 
-##Average across years
+
+##Average across years and format for structured model run
 mean.FR.cal.1 <- unlist(mean.FR.cal)
 mean.FR.cal.1 <- as.data.frame(mean.FR.cal.1)
 mean.FR.cal.1$`2007` <- as.numeric(as.character(mean.FR.cal.1$`2007`))
@@ -131,8 +133,13 @@ library(strucchange)
 mod.sel <- breakpoints(Means~ Species.Richness, h = 0.2, data =mean.FR.cal.1)
 AIC(mod.sel)
 
+
+
+
+
+
 ####
-#EDITED Functional Redundancy calculation using FD function
+#DON'T USE: Functional Redundancy calculation for a single year using FD function
 ## functional diversity of a community of size i in year y. Input variable x and ft are the same as
 #above
 Func.Red <- function(ab,ft,i){
