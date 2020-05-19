@@ -11,11 +11,11 @@ FDis.plot <- ggplot()+
                       values = c("#252525"))+
   theme_classic()+
   theme(axis.text = element_text(size = rel(.9)))+
-  labs( title = "Annual mammalian functional dispersion", y = "FDis")+
+  labs( title = "Annual mammalian functional dispersion", y = "FDis", x = "Year")+
   ylim(.17,.23 )+
-  theme(legend.position = "none", axis.title.x =element_blank())
+  theme(legend.position = "none")
 
-
+library(ggplot2)
 ##Plot Environmental Variables over time 
 Prec.plot <- ggplot()+
   geom_point(data = VBAnalysis_Ordered, aes(x = Year, y = Tot.Prec, col = "Prec"))+
@@ -25,7 +25,7 @@ Prec.plot <- ggplot()+
                       values = c("#bdbdbd"))+
   theme_classic()+
   theme(axis.text = element_text(size = rel(.9)))+
-  labs( title = "Annual precipitation", y = "Prec.")+
+  labs( title = "Annual precipitation", y = "Prec. (mm)")+
   ylim(1100, 2100)+
   theme(legend.position = "none", axis.title.x =element_blank())
 
@@ -37,7 +37,7 @@ Can.gap.plot <- ggplot()+
                       values = c("#969696"))+
   theme_classic()+
   theme(axis.text = element_text(size = rel(.9)))+
-  labs( title = "Annual canopy gap emergence", y = "Area")+
+  labs( title = "Annual canopy gap emergence", y = "Area (hectares)")+
   ylim(0, 4)+
   theme(legend.position = "none", axis.title.x =element_blank())
 
@@ -49,7 +49,7 @@ Frag.plot <- ggplot()+
                       values = c("#737373"))+
   theme_classic()+
   theme(axis.text = element_text(size = rel(.9)))+
-  labs( title = "Mean fragment size in ZOI", y = "Area")+
+  labs( title = "Mean fragment size in ZOI", y = "Area (hectares)")+
   ylim(99, 106)+
   theme(legend.position = "none", axis.title.x =element_blank())
 
@@ -61,7 +61,7 @@ Defor.plot <- ggplot()+
                       values = c("#525252"))+
   theme_classic()+
   theme(axis.text = element_text(size = rel(.9)))+
-  labs( title = "Annual forest loss in ZOI", y = "Area")+
+  labs( title = "Annual forest loss in ZOI", y = "Area (hectares)")+
   ylim(600, 2800)+
   theme(legend.position = "none", axis.title.x =element_blank())
 
@@ -262,6 +262,66 @@ Lit.plot <- ggplot()+
 ##Combine regressions into a single figure
 
 ggarrange(BM.plot,Diet.plot,Soc.plot,Hab.plot, Act.plot,Lit.plot, ncol = 3, nrow = 2, align = "hv")
+
+
+##Figures showing relative trait abundances over time
+##Make ordered categories
+Qualitative.trait.analysis$Body.Mass <- ordered(Qualitative.trait.analysis$Body.Mass, 
+                                            levels = c("small","moderate",
+                                                       "large","very large"))
+Qualitative.trait.analysis$Diet <- ordered(Qualitative.trait.analysis$Diet, 
+                                       levels = c("Browser","Browser/Frugivore",
+                                                  "Frugivore","Omnivore","Insectivore","Zoophage","Carnivore"))
+Qualitative.trait.analysis$Social <- ordered(Qualitative.trait.analysis$Social, 
+                                         levels = c("Solitary/pairs","Coalitions",
+                                                    "Family groups","Gregarious"))
+Qualitative.trait.analysis$Habitat <- ordered(Qualitative.trait.analysis$Habitat, 
+                                          levels = c("terrestrial","scansorial"))
+Qualitative.trait.analysis$Activity <- ordered(Qualitative.trait.analysis$Activity, 
+                                           levels = c("Diurnal","Non-restricted",
+                                                      "Crepuscular","Nocturnal/Crepuscular","Nocturnal"))
+Qualitative.trait.analysis$Litter <- ordered(Qualitative.trait.analysis$Litter, 
+                                             levels = c("small","moderate",
+                                                        "large","very large"))
+
+
+
+
+##Proportional for categories
+##Body Mass
+BM.prop <- ggplot(data=Qualitative.trait.analysis, aes(x=Year, y=Occupancy, fill=Body.Mass)) +
+  geom_bar(stat="identity", position = "fill")+
+  labs(y="Proportional Occupancy", title= "Body Mass")+
+  theme(legend.title=element_blank())
+##Diet
+Diet.prop <- ggplot(data=Qualitative.trait.analysis, aes(x=Year, y=Occupancy, fill=Diet)) +
+  geom_bar(stat="identity", position = "fill")+
+  labs(y="Proportional Occupancy", title= "Diet")+
+  theme(legend.title=element_blank())
+##Social
+Soc.prop <- ggplot(data=Qualitative.trait.analysis, aes(x=Year, y=Occupancy, fill=Social)) +
+  geom_bar(stat="identity", position = "fill")+
+  labs(y="Proportional Occupancy", title= "Social Group")+
+  theme(legend.title=element_blank())
+##Habitat
+Hab.prop <- ggplot(data=Qualitative.trait.analysis, aes(x=Year, y=Occupancy, fill=Habitat)) +
+  geom_bar(stat="identity", position = "fill")+
+  labs(y="Proportional Occupancy", title= "Habitat")+
+  theme(legend.title=element_blank())
+##Activity
+Act.prop <- ggplot(data=Qualitative.trait.analysis, aes(x=Year, y=Occupancy, fill=Activity)) +
+  geom_bar(stat="identity", position = "fill")+
+  labs(y="Proportional Occupancy", title= "Activity Period")+
+  theme(legend.title=element_blank())
+##Litter
+Lit.prop <- ggplot(data=Qualitative.trait.analysis, aes(x=Year, y=Occupancy, fill=Litter)) +
+  geom_bar(stat="identity", position = "fill")+
+  labs(y="Proportional Occupancy", title= "Litter Size")+
+  theme(legend.title=element_blank())
+##Combine into single figure
+library(ggpubr)
+ggarrange(BM.prop,Diet.prop,Soc.prop,Hab.prop, Act.prop, Lit.prop, ncol = 2, nrow = 3, align = "hv")
+
 
 
 ###OLD ITERATIONS FOR POTENTIAL USE LATER

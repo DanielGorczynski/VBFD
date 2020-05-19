@@ -79,6 +79,7 @@ Func.Red <- function(ab,ft,i){
   return(x$FDis)
 }
 
+
 #Calculate fuctional diversity for all community sizes for a single year
 #Input variables remain the same
 mean.FR.cal <- matrix(c("0"), ncol = 8, nrow=21)
