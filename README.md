@@ -5,14 +5,21 @@ Link to paper: https://onlinelibrary.wiley.com/doi/full/10.1111/btp.12844?casa_t
 
 List and description of all code and data files included in the repository:
 Code:
+
 Functional Diversity VB.R- Provides functions and code for calculating functional diversity and functional redundancy metrics, as well as all linear models and analysis used in the study
+
 Linear Modeling.R- Provides code for all linear models in the study plus additional models of the effect of environmental variables on individual oridnal traits
+
 Figures.R- Provides code for all figures included in the manuscript
 
 Data:
+
 Ordinal trait analysis.csv- Trait and environmental data, and occupnacy estimates, formated for clm ordinal regression in Functional Diversity VB.R and Linear Modeling.R
+
 VB Ordered Categories.csv- Species trait data, described as continuous variables for body mass and average litter size, and categorical for diet, social group, habitat and activity period. Body mass is log transformed. Citations for the data can be found in the supplementary materials. Used in Functional Diversity VB.R
+
 VB.Occurrence.csv- Median occupancy estimates for each species in each year of the study, obtained from Beaudrot et al. 2016. Used in Function Diversity VB.R
+
 VBAnalysis_Ordered.csv- File containing all annual environmental variable measurements at Volcan Barva, including some not used in the study. Climate data were obtained from the NASA Power dataset; Forest loss data are from the Global Forest Cover (GFC) database and processed using Fragstats; further details can be foudn in the manuscript. File also contains mean (for continuous traits) and mode (for categorical) trait values for each year.
 
 License: NA
